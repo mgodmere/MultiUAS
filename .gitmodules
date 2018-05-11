@@ -1,0 +1,6 @@
+[submodule "Firmware"]
+	path = Firmware
+	url = https://www.github.com/PX4/Firmware
+[submodule "dronekit-python"]
+	path = dronekit-python
+	url = https://github.com/dronekit/dronekit-python.git
