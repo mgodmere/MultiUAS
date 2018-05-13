@@ -4,6 +4,7 @@ import time, sys, argparse, math
 
 fcu_c = 20100
 MAV_MODE_AUTO = 4
+spacing = 2
 
 def SetMode(vehicles, mavMode):
 	for vehicle in vehicles:
@@ -32,63 +33,32 @@ def get_location_offset_meters(original_location, dNorth, dEast, alt):
 	newlon = original_location.lon + (dLon * 180/math.pi)
 	return LocationGlobal(newlat, newlon,original_location.alt+alt)
 
-
-
 # connect
 vehicles = []
 for i in range(0,int(sys.argv[1])):
 	url = '127.0.0.1:' + str(fcu_c + i + 1)
 	vehicles.append(connect(url, wait_ready=False))
 
-# clear mission
-#clear_missions(vehicles);
-
 # Change to AUTO mode
 SetMode(vehicles, MAV_MODE_AUTO)
 
 # load mission
+index = 1
 for vehicle in vehicles:
 	cmds = vehicle.commands
 	cmds.clear()
 	vehicle.flush()
-	home = vehicle.location.global_relative_frame
 
-	# takeoff to 10 meters
-	wp = get_location_offset_meters(home, 0, 0, 10);
+	# takeoff
+	wp = get_location_offset_meters(vehicle.location.global_relative_frame, 0, 0, 30);
 	cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0, 1, 0, 0, 0, 0, wp.lat, wp.lon, wp.alt)
-	cmds.add(cmd)
-
-	# move 10 meters south
-	wp = get_location_offset_meters(wp, -10, 0, 0);
-	cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 1, 0, 0, 0, 0, wp.lat, wp.lon, wp.alt)
-	cmds.add(cmd)
-
-	# move 10 meters east
-	wp = get_location_offset_meters(wp, 0, 10, 0);
-	cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 1, 0, 0, 0, 0, wp.lat, wp.lon, wp.alt)
-	cmds.add(cmd)
-
-	# move 10 meters north
-	wp = get_location_offset_meters(wp, 10, 0, 0);
-	cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 1, 0, 0, 0, 0, wp.lat, wp.lon, wp.alt)
-	cmds.add(cmd)
-
-	# move 10 meters west
-	wp = get_location_offset_meters(wp, 0, -10, 0);
-	cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 1, 0, 0, 0, 0, wp.lat, wp.lon, wp.alt)
-	cmds.add(cmd)
-
-	# land
-	cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_LAND, 0, 1, 0, 0, 0, 0, home.lat, home.lon, home.alt)
 	cmds.add(cmd)
 
 	# Upload mission
 	cmds.upload()
+	vehicle.flush()
+	index += 1
 
 # arm vehicles
-vehicles.reverse()
 for vehicle in vehicles:
 	vehicle.armed = True
-	time.sleep(2)
-
-time.sleep(100)

@@ -9,19 +9,16 @@ sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C
 sudo apt-get -y update
 sudo apt-get -y install ros-kinetic-desktop-full
 echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
-source ~/.bashrc
 sudo apt-get -y install python-rosinstall python-rosinstall-generator python-wstool build-essential
 
-# firmware
+# PX4 SITL
 cd Firmware
 make posix_sitl_default
 make posix_sitl_default sitl_gazebo
-source Tools/setup_gazebo.bash $(pwd) $(pwd)/build/posix_sitl_default
-export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd):$(pwd)/Tools/sitl_gazebo
+echo "source Tools/setup_gazebo.bash $(pwd) $(pwd)/build/posix_sitl_default" >> ~/.bashrc
+echo "ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd):$(pwd)/Tools/sitl_gazebo" >> ~/.bashrc
+source ~/.bashrc
 cd ..
 
 # dronekit
 sudo pip install dronekit
-
-# catkin
-catkin_make
