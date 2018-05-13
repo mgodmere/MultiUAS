@@ -5,7 +5,7 @@ fcu_c = 20100 # fcu offboard client port
 fcu_s = 20200 # fcu offboard server port (sitl)
 mav_udp = 20300 # sim udp server
 
-spacing = 5
+spacing = 1
 
 def main():
 	gazebo = '''
@@ -140,8 +140,8 @@ def main():
 	# clone uav templates
 	for i in range(1, int(sys.argv[1]) + 1):
 		vehicle_config = open('Firmware/posix-configs/SITL/init/ekf2/iris_' + str(i), 'w')
-		x = ((i - 1) * spacing) % 50
-		y = ((i - 1) / 50) * spacing
+		x = ((i - 1) * spacing) % 5
+		y = ((i - 1) * spacing) / 5
 		uas = uas_template.format(
 			i,
 			i,

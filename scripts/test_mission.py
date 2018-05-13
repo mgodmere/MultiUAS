@@ -1,13 +1,3 @@
-################################################################################################
-# @File DroneKitPX4.py
-# Example usage of DroneKit with PX4
-#
-# @author Sander Smeets <sander@droneslab.com>
-#
-# Code partly based on DroneKit (c) Copyright 2015-2016, 3D Robotics.
-################################################################################################
-
-# Import DroneKit-Python
 from dronekit import connect, Command, LocationGlobal
 from pymavlink import mavutil
 import time, sys, argparse, math
@@ -22,6 +12,22 @@ def SetMode(vehicles, mavMode):
 	                                               mavMode,
 	                                               0, 0, 0, 0, 0, 0)
 
+
+def clear_missions(vehicles):
+	for vehicle in vehicles:
+		"""
+		Clear the current mission.
+		"""
+		cmds = vehicle.commands
+		vehicle.commands.clear()
+		vehicle.flush()
+
+		# After clearing the mission you MUST re-download the mission from the vehicle
+		# before vehicle.commands can be used again
+		# (see https://github.com/dronekit/dronekit-python/issues/230)
+		cmds = vehicle.commands
+		cmds.download()
+		#cmds.wait_valid()
 
 
 def get_location_offset_meters(original_location, dNorth, dEast, alt):
@@ -52,9 +58,11 @@ for i in range(0,int(sys.argv[1])):
 	url = '127.0.0.1:' + str(fcu_c + i + 1)
 	vehicles.append(connect(url, wait_ready=False))
 
+# clear mission
+#clear_missions(vehicles);
+
 # Change to AUTO mode
 SetMode(vehicles, MAV_MODE_AUTO)
-time.sleep(1)
 
 # load mission
 for vehicle in vehicles:
@@ -89,8 +97,7 @@ for vehicle in vehicles:
 	cmds.add(cmd)
 
 	# land
-	wp = get_location_offset_meters(home, 0, 0, 10);
-	cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_LAND, 0, 1, 0, 0, 0, 0, wp.lat, wp.lon, wp.alt)
+	cmd = Command(0,0,0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_LAND, 0, 1, 0, 0, 0, 0, home.lat, home.lon, home.alt)
 	cmds.add(cmd)
 
 	# Upload mission
@@ -100,6 +107,6 @@ for vehicle in vehicles:
 vehicles.reverse()
 for vehicle in vehicles:
 	vehicle.armed = True
-	time.sleep(1)
+	time.sleep(2)
 
-time.sleep(60)
+time.sleep(100)
