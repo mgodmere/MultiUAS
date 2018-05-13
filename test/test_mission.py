@@ -12,24 +12,6 @@ def SetMode(vehicles, mavMode):
 	                                               mavMode,
 	                                               0, 0, 0, 0, 0, 0)
 
-
-def clear_missions(vehicles):
-	for vehicle in vehicles:
-		"""
-		Clear the current mission.
-		"""
-		cmds = vehicle.commands
-		vehicle.commands.clear()
-		vehicle.flush()
-
-		# After clearing the mission you MUST re-download the mission from the vehicle
-		# before vehicle.commands can be used again
-		# (see https://github.com/dronekit/dronekit-python/issues/230)
-		cmds = vehicle.commands
-		cmds.download()
-		#cmds.wait_valid()
-
-
 def get_location_offset_meters(original_location, dNorth, dEast, alt):
 	"""
 	Returns a LocationGlobal object containing the latitude/longitude `dNorth` and `dEast` metres from the
@@ -66,9 +48,9 @@ SetMode(vehicles, MAV_MODE_AUTO)
 
 # load mission
 for vehicle in vehicles:
-	# Load commands
 	cmds = vehicle.commands
 	cmds.clear()
+	vehicle.flush()
 	home = vehicle.location.global_relative_frame
 
 	# takeoff to 10 meters
