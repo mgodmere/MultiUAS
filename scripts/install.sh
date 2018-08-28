@@ -14,6 +14,8 @@ sudo pip install jinja2 numpy toml
 
 # PX4 SITL
 cd Firmware
+git submodule init
+git submodule update
 make posix_sitl_default
 make posix_sitl_default sitl_gazebo
 echo "source Tools/setup_gazebo.bash $(pwd) $(pwd)/build/posix_sitl_default" >> ~/.bashrc

@@ -2,7 +2,7 @@ from dronekit import connect, Command, LocationGlobal
 from pymavlink import mavutil
 import time, sys, argparse, math
 
-fcu_c = 20100
+off = 20000
 MAV_MODE_AUTO = 4
 spacing = 2
 
@@ -36,7 +36,7 @@ def get_location_offset_meters(original_location, dNorth, dEast, alt):
 # connect
 vehicles = []
 for i in range(0,int(sys.argv[1])):
-	url = '127.0.0.1:' + str(fcu_c + i + 1)
+	url = '127.0.0.1:' + str(off + i)
 	vehicles.append(connect(url, wait_ready=False))
 
 # Change to AUTO mode
